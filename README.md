@@ -6,3 +6,8 @@ test.
 
 ### Limitations
 * Crossing domains or changing the URL will break the test.
+* Storage - tests are stored in `localStorage`, so are not yet easily portable.
+
+### To-Do
+* Add in expect.js or should library to make assertions more common.
+* Add in better structure for each assertion; change, expect and action.
