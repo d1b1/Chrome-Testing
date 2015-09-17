@@ -1,0 +1,138 @@
+<!doctype html>
+<style type="text/css">
+	#mainPopup {
+		padding: 10px;
+		width: 600px;
+		font-family: Helvetica, Ubuntu, Arial, sans-serif;
+	}
+	h1 {
+		font-size: 2em;
+	}
+	.ui-state-highlight { 
+		border: 1px solid #DFDFDF; height: 20px; margin: 10px; background-color: #EFEFEF;
+	}
+</style>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<link rel="stylesheets" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+
+<script src="../../js/jquery/jquery.js"></script>
+<script src="../../js/jqueryui/jquery-ui.min.js"></script>
+<script src="../../js/underscore/underscore-min.js"></script>
+<script src="../../js/async/async.min.js"></script>
+<script src="tester.js"></script>
+
+<body class="container">
+<div id="mainPopup">
+<h2>Test Builder (here)</h2>
+
+<p>
+
+<table class="table">
+	<td>
+		<select id="currentSchema" name="workflows" class="form-control">
+			<option value="heroku_login">Heroku Login</option>
+			<option value="google_search">Google Search Terms</option>
+			<option value="google_urls">Google URL Changes</option>
+		</select>
+	</td>
+	<td>
+		<select id="runSpeed" name="runspeed" class="form-control">
+			<option value="0">Fast</option>
+			<option value="500">Slow</option>
+		</select>
+	</td>
+	<td>
+		<button class="btn btn-primary btn-sm runTestAll">
+			Reset
+		</button>
+
+		<button class="btn btn-primary btn-sm runTestAll">
+			Run All Steps
+		</button>
+	</td>
+</table>
+
+
+<table  class="table table-border table-striped table-hover">
+  <tbody id="sortable">
+  <tr>
+    <td width="5%">
+		<span class="glyphicon glyphicon-align-justify"></span>
+    </td>
+	<td>Set Search to '1111'</td>
+	<td>
+	   <span data-id="1" class="glyphicon glyphicon-ok hide" style="color:green"></span>
+	</td>
+	<td>
+		<button data-id="1" class="btn btn-default btn-sm pull-right runTest">
+		Run
+		</button>
+	</td>
+  </tr>
+  <tr>
+    <td width="5%">
+		<span class="glyphicon glyphicon-align-justify"></span>
+    </td>
+	<td>Set Search to '22222'</td>
+	<td>
+		<span data-id="2" class="glyphicon glyphicon-ok hide" style="color:green"></span>
+	</td>
+	<td>
+		<button data-id="2" class="btn btn-default btn-sm pull-right runTest">
+		Run
+		</button>
+	</td>
+  </tr>
+  <tr>
+    <td width="5%">
+		<span class="glyphicon glyphicon-align-justify"></span>
+    </td>
+	<td>Set Search to 'All Done'</td>
+	<td>
+		<span data-id="3" class="glyphicon glyphicon-ok hide" style="color:green"></span>
+	</td>
+	<td>
+		<button data-id="3" class="btn btn-default btn-sm pull-right runTest">
+		Run
+		</button>
+	</td>
+  </tr>
+  <tr>
+    <td width="5%">
+		<span class="glyphicon glyphicon-align-justify"></span>
+    </td>
+	<td>Set Search to '33333'</td>
+	<td>
+		<span data-id="4" class="glyphicon glyphicon-ok hide" style="color:green"></span>
+	</td>
+	<td>
+		<button data-id="3" class="btn btn-default btn-sm pull-right runTest">
+		Run
+		</button>
+	</td>
+  </tr>
+  <tr>
+    <td width="5%">
+		<span class="glyphicon glyphicon-align-justify"></span>
+    </td>
+	<td>Set Search to '4444'</td>
+	<td>
+		<span data-id="5" class="glyphicon glyphicon-ok hide" style="color:green"></span>
+	</td>
+	<td>
+		<button data-id="3" class="btn btn-default btn-sm pull-right runTest">
+		Run
+		</button>
+	</td>
+  </tr>
+  </tbody>
+</table>
+<div id="finalMessage" class="alert alert-success hide" role="alert"></div>
+
+</body>
+</html>
+
+
+
