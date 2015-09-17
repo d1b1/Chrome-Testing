@@ -17,7 +17,8 @@
   "background": {
     "scripts": [
       "src/bg/background.js",
-      "js/jquery/jquery.js"
+      "js/jquery/jquery.js",
+      "js/angular/angular.js"
     ],
     "persistent": true
   },
@@ -27,6 +28,7 @@
     "default_title": "browser action demo",
     "default_popup": "src/browser_action/browser_action.html"
   },
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "content_scripts": [
     {
       "matches": [
@@ -37,7 +39,8 @@
         "src/inject/inject.js", 
         "js/underscore/underscore-min.js",
         "js/async/async.min.js",
-        "js/jquery/jquery.js"
+        "js/jquery/jquery.js",
+        "js/angular/angular.js"
       ]
     }
   ]
