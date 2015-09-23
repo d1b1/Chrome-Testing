@@ -1,0 +1,80 @@
+#mainPopup {
+	padding: 10px;
+	width: 600px;
+	font-family: Helvetica, Ubuntu, Arial, sans-serif;
+	min-height: 400px;
+}
+h1 {
+	font-size: 2em;
+}
+.ui-state-highlight { 
+	border: 1px solid #DFDFDF; height: 20px; margin: 10px; background-color: #EFEFEF;
+}
+
+body {
+  padding-top: 50px;
+  padding-bottom: 30px;
+}
+
+.iconRed {
+	color: red;
+}
+
+.ioncGray {
+	color: gray;
+}
+
+.iconGreen {
+	color: green;
+}
+
+.spinner {
+  display: inline-block;
+  opacity: 0;
+  width: 0;
+
+  -webkit-transition: opacity 0.25s, width 0.25s;
+  -moz-transition: opacity 0.25s, width 0.25s;
+  -o-transition: opacity 0.25s, width 0.25s;
+  transition: opacity 0.25s, width 0.25s;
+}
+
+.has-spinner.active {
+  cursor:progress;
+}
+
+.has-spinner.active .spinner {
+  opacity: 1;
+  width: auto; /* This doesn't work, just fix for unkown width elements */
+}
+
+.has-spinner.btn-mini.active .spinner {
+    width: 10px;
+}
+
+.has-spinner.btn-small.active .spinner {
+    width: 13px;
+}
+
+.has-spinner.btn.active .spinner {
+    width: 16px;
+}
+
+.has-spinner.btn-large.active .spinner {
+    width: 19px;
+}
+
+.glyphicon-refresh-animate {
+    -animation: spin .7s infinite linear;
+    -webkit-animation: spin2 .7s infinite linear;
+}
+
+@-webkit-keyframes spin2 {
+    from { -webkit-transform: rotate(0deg);}
+    to { -webkit-transform: rotate(360deg);}
+}
+
+@keyframes spin {
+    from { transform: scale(1) rotate(0deg);}
+    to { transform: scale(1) rotate(360deg);}
+}

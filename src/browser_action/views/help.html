@@ -1,0 +1,47 @@
+<br>
+    <p>Test are made up of steps. Each step has three 
+    options, name, jquery selector(s), action and value.
+    </p>
+
+    <p>
+		Name + JQuery Selector(s) + Action + Value = DOM Assertion.
+    </p>
+
+    <p>
+	The <b>'name'</b> is used to define the expected action. Use anything
+	you want to make the test suite steps readable. 
+    </p>
+
+	<p>
+	The <b>'selectors'</b> are simple selectors available in JQuery. 
+	If you can find an element in using jQuery in the console
+	you can use it in a step.
+	</p>
+
+	<p>
+		<ul>
+			<li>$('#id') Find with a given Id.</li>
+			<li>$('#id.classname') Find with a given Id and class.</li>
+			<li>$('.classname') Find with a given classname.</li>
+			<li>$('tr.classname') Find with a Table Tr with a given classname.</li>
+		</ul>
+	</p>
+
+	<p>
+		<a href="http://www.w3schools.com/jquery/jquery_ref_selectors.asp" target="_blank">Learn more...</a>
+	</p>
+
+	<p>
+	The <b>'action'</b> is what you want to perform. These are 
+	simple statement, that either change the URL, or 
+	trigger an event on a given element. For example, find 
+	a button with a given class, and click it.
+	</p>
+
+	<p>
+	<b>How to build a step?</b> Open our browser and either
+	navigate to a page or url, and right click on a given 
+	element in the DOM. You will see 'step building' option
+	that let you grab the classes, id and value for use in
+	the curent test suite steps.
+	</p>

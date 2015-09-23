@@ -1,0 +1,39 @@
+
+	<br>
+	<p>Here are all your saved test runs. Double click on a test run
+	to open it in the editor. Use the run options to run each test 
+	in full. Or use the 'Run All' to run all the test runs in sequence.
+	</p>
+
+	<table class="table table-hover table-striped">
+		<tr ng-dblclick="setActiveTest(service.name)" data-test-name="{{service.name}}" ng-class="{ 'success': service.name == activeTest.name }" ng-repeat="service in services">
+			<td width="65%">
+			  <span data-test-name="{{service.name}}" class="glyphicon glyphicon-ok hide bulkTest" style="color:green"></span>
+			  {{service.name}}
+			</td>
+			<td width="10%">{{service.steps.length}}</td>
+
+			<td align="right">
+				<button ng-click="removeTestButton(service.name)" class="btn btn-danger btn-sm">
+					<span class="glyphicon glyphicon-minus"></span>
+				</button>
+
+				<button ng-click="copyTestButton(service.name)" class="btn btn-default btn-sm">
+					<span class="glyphicon glyphicon-copy"></span>
+				</button>
+
+				<button data-test-name="{{service.name}}" ng-click="runIndividualTestSuite(service.name)" class="btn btn-default btn-sm has-spinner">
+					<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate hide"></span>
+					<span class="glyphicon glyphicon-cog"></span>
+				</button>
+			</td>
+		</tr>
+
+	</table>
+
+	<button ng-show="services.length > 0" ng-click="runAllTestInSeries();" class="btn btn-primary">
+		<span class="glyphicon glyphicon-cog"></span> Run All your tests
+	</button>
+
+	<br><br>
+	<div class="alert alert-success hide finalMessage" role="alert"></div>

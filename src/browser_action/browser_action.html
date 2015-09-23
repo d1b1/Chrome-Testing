@@ -1,148 +1,94 @@
 <!doctype html>
 <html ng-app="myApp">
-<style type="text/css">
-	#mainPopup {
-		padding: 10px;
-		width: 500px;
-		font-family: Helvetica, Ubuntu, Arial, sans-serif;
-		min-height: 400px;
-	}
-	h1 {
-		font-size: 2em;
-	}
-	.ui-state-highlight { 
-		border: 1px solid #DFDFDF; height: 20px; margin: 10px; background-color: #EFEFEF;
-	}
-</style>
 
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-<link rel="stylesheets" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
-
-<script src="../../js/jquery/jquery.js"></script>
-<script src="../../js/jqueryui/jquery-ui.min.js"></script>
-<script src="../../js/underscore/underscore-min.js"></script>
-<script src="../../js/async/async.min.js"></script>
-<script src="../../js/angular/angular.js"></script>
-<script src="test.js"></script>
+<head>
+	<link rel="stylesheet" href="styles.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	<link rel="stylesheets" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+	<script src="../../js/jquery/jquery.js"></script>
+	<script src="../../js/bootstrap/bootstrap.min.js"></script>
+	<script src="../../js/jqueryui/jquery-ui.min.js"></script>
+	<script src="../../js/underscore/underscore-min.js"></script>
+	<script src="../../js/async/async.min.js"></script>
+	<script src="../../js/angular/angular.js"></script>
+	<script src="test.js"></script>
+</head>
 
 <body class="container" ng-controller="mainController">
 
-<div id="mainPopup">
-<h4 style="padding: 0; margin: 5px 0px;">Test Builder</h4>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">JQuery Dom Tester: {{ activeTest.name }}</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li role="separator" class="divider"></li>
+                <li class="dropdown-header">Nav header</li>
+                <li><a href="#">Separated link</a></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
 
+	<div id="mainPopup">
 
-<table class="table">
-	<td>
-		<select id="activeTest" ng-change="changeCurrentTest()" name="activeTest" class="form-control" ng-model="activeTest" ng-options="service.name for service in services">
-		</select>
-	</td>
-	<td>
-		<select id="runSpeed" name="runspeed" class="form-control">
-			<option value="0">Fast</option>
-			<option value="500">Slow</option>
-		</select>
-	</td>
-	<td>
-		<button class="btn btn-primary btn-sm runTestAll hide">
-			Reset
-		</button>
+		<div>
+			<!-- Nav tabs -->
+			<ul id="tabs" class="nav nav-tabs" role="tablist">
+				<li role="presentation" class="active">
+					<a href="#home" aria-controls="home" role="tab" data-toggle="tab">Editor</a>
+				</li>
+				<li role="presentation">
+					<a href="#tests" aria-controls="tests" role="tab" data-toggle="tab">
+						<span class="glyphicon glyphicon-th-list"></span>
+					</a>
+				</li>
+				<li role="presentation">
+					<a href="#options" aria-controls="options" role="tab" data-toggle="tab">
+						<span class="glyphicon glyphicon-check"></span>
+					</a>
+				</li>
+				<li role="presentation">
+					<a href="#new" aria-controls="new" role="tab" data-toggle="tab">
+						<span class="glyphicon glyphicon-plus"></span> 
+					</a>
+				</li>
+				<li role="presentation">
+					<a href="#help" aria-controls="profile" role="tab" data-toggle="tab">
+						<span class="glyphicon glyphicon-question-sign"></span> 
+					</a>
+				</li>
+			</ul>
 
-		<button ng-click="removeTestButton();" class="btn btn-primary btn-sm">
-			<span class="glyphicon glyphicon-minus"></span>
-		</button>
+			<!-- Tab panes -->
+			<div class="tab-content">
+				<div role="tabpanel" ng-include="'views/editor.html'" class="tab-pane active" id="home"></div>
+				<div role="tabpanel" ng-include="'views/new.html'" class="tab-pane" id="new"></div>
+				<div role="tabpanel" class="tab-pane" ng-include="'views/tests.html'" id="tests"></div>
+				<div role="tabpanel" class="tab-pane" ng-include="'views/options.html'" id="options"></div>
+				<div role="tabpanel" class="tab-pane" ng-include="'views/help.html'" id="help"></div>
+			</div>
 
-		<button ng-click="reloadSampleTests();" class="btn btn-primary btn-sm">
-			<span class="glyphicon glyphicon-retweet"></span>
-		</button>
-
-
-		<button ng-click="addTestButton();" class="btn btn-primary btn-sm">
-			<span class="glyphicon glyphicon-plus"></span>
-		</button>
-
-		<button ng-click="runAllTest()" class="btn btn-primary btn-sm runTestAll">
-			All
-		</button>
-	</td>
-</table>
-
-<table  class="table table-border table-striped table-hover">
-  <tbody id="sortable">
-  <tr ng-repeat="step in activeTest.steps">
-    <td width="5%">
-		<span class="glyphicon glyphicon-align-justify"></span>
-    </td>
-	<td width="60%" ng-dblclick="editTestStep($index);">
-		  <div ng-show="editModeIdx == $index" class="form-group">
-		    <label for="inputEmail3" class="col-sm-2 control-label">Name</label>
-		    <div class="col-sm-12">
-		      <input type="text" class="form-control" ng-model="step.name" placeholder="Name">
-		    </div>
-		  </div>
-		  <div ng-show="editModeIdx == $index" class="form-group">
-		    <label for="inputPassword3" class="col-sm-2 control-label">Selectors</label>
-		    <div class="col-sm-10">
-		      <input type="text" class="form-control" ng-model="step.target" placeholder="Selectors">
-		    </div>
-		  </div>
-		  <div ng-show="editModeIdx == $index" class="form-group">
-		    <label for="inputPassword3" class="col-sm-2 control-label">Value</label>
-		    <div class="col-sm-10">
-		      <input type="text" class="form-control" ng-model="step.value" placeholder="Value">
-		    </div>
-		  </div>
-		  <div ng-show="editModeIdx == $index" class="form-group">
-		    <label for="inputPassword3" class="col-sm-2 control-label">Action</label>
-		    <div class="col-sm-10">
-		      <input type="text" class="form-control" ng-model="step.action" placeholder="Action (Optional)">
-		    </div>
-		  </div>
-	   <p ng-show="editModeIdx != $index">{{step.name}}</p>
-	</td>
-	<td>
-	   <span data-id="{{$index}}" class="glyphicon glyphicon-ok hide" style="color:green"></span>
-	</td>
-	<td align="right">
-
-		<button ng-show="editModeIdx == $index" ng-click="saveTestStepChanges($index)" class="btn btn-primary">
-		  Save
-		</button>
-
-		<button ng-show="editModeIdx != $index" ng-click="deleteTestStep($index)" class="btn btn-danger">
-		  <span class="glyphicon glyphicon-minus"></span>
-		</button>
-
-		<button ng-show="editModeIdx != $index" data-id="{{$index}}" ng-click="runIndividualTest($index)" class="btn btn-default btn-sm runTest">
-		Run
-		</button>
-	</td>
-  </tr>
-  <tr>
-	<td colspan="4">
-		<div class="input-group">
-	     <input type="test" class="form-control" ng-model="newTestStep" placeholder="" value="dd">
-	     <span class="input-group-btn">
-	       <button class="btn btn-primary" ng-click="createTestStep();" type="button">createTestStep</button>
-	     </span>
-	   </div>
-	</td>
-  </tr>
-  </tbody>
-</table>
-
-<div id="finalMessage" class="alert alert-success hide" role="alert"></div>
-
-<div id="newTestForm" class="hide">
-	<div class="input-group">
-     <input type="test" class="form-control" ng-model="newTest.name" placeholder="Enter Test Name" value="{{newTest.name}}">
-     <span class="input-group-btn">
-       <button class="btn btn-primary" ng-click="createTest();" type="button">Add Now</button>
-     </span>
-   </div>
-</div>
+	</div>
 
 </body>
 </html>
-
-
-

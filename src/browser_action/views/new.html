@@ -1,0 +1,20 @@
+<p>&nbsp;</p>
+		<p>
+			Ready to test some more? Use this to create as many test runs
+			as you need. Start by entering a name.
+		</p>
+		<p>&nbsp;</p>
+		<div class="form-group">
+		  <form ng-submit="createTest()">
+		  <label for="newName" class="control-label">Enter a new Test Run Name</label>
+		  <div class="input-group">
+		    <input type="test" class="form-control" ng-model="newTest.name" placeholder="Enter Test Name" value="{{newTest.name}}">
+		    <span class="input-group-btn">
+		      <button class="btn btn-primary" type="submit">
+		      	<span class="glyphicon glyphicon-plus"></span>
+		      	Continue
+		      </button>
+		    </span>
+		  </div>
+		  </form>
+		</div>

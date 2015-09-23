@@ -7,6 +7,7 @@ function ProperCase(str) {
 }
 
 $(function() {
+
     $( "#sortable" ).sortable({
       revert: true,
       axis: "y",
@@ -14,18 +15,10 @@ $(function() {
       helper: "clone",
       placeholder: "ui-state-highlight"
     });
-    $( "tr" ).disableSelection();
+    $( "td" ).disableSelection();
 
-    var options = JSON.parse(localStorage.getItem('tests'));
-
-    $('.addSuiteButton').on('click', function(e) {
-      $('#finalMessage').removeClass('hide').html('Show a form to add a suite.')
-    });
 
   });
-
-    // create the module and name it scotchApp
-    var scotchApp = angular.module('myApp', []);
 
     var schemas = [
       { name: 'heroku_login', steps: [
@@ -52,53 +45,162 @@ $(function() {
       }
     ];
 
-    // localStorage.setItem('tests', JSON.stringify(schemas));
+    var currentTest = null;
+    var tests = [];
+    var currentTab = null;
 
-    var currentTest = localStorage.getItem('currentTest');
-    if (!currentTest) {
-      localStorage.setItem('currentTest', _.first(schemas).name);
-      currentTest = localStorage.getItem('currentTest');
+    chrome.storage.sync.get('currentTest', function(data) {
+      // Check if we got data.
+      if (!_.has(data,'currentTest')) {
+        // Set the default.
+        currentTest = _.first(schemas).name;
+
+        // Save the default.
+        chrome.storage.sync.set({'currentTest': currentTest}, function() {
+          console.log('Setting default test name.');
+        });
+      } else {
+        // Get the current test value.
+        currentTest = data.currentTest;
+      }
+
+      console.log('CurrentTab', currentTab);
+    });
+
+    function setCurrentTest(name) {
+      currentTest = name;
+      chrome.storage.sync.set({'currentTest': currentTest}, function() {
+        console.log('Setting the current test.');
+      });
     }
 
-    scotchApp.controller('mainController', function($scope) {
+    function setTests(tests) {
+      chrome.storage.sync.set({'tests': JSON.stringify(tests) }, function() {
+        console.log('Set the tests object.');
+      });
+    }
+
+    function setTab(tab) {
+      chrome.storage.sync.set({'currentTab': tab }, function() {
+        console.log('Set the tests object tab.', tab);
+      });
+    }
+
+    var scotchApp = angular.module('myApp', []);
+
+    scotchApp.controller('mainController', function($scope, $timeout, Tests) {
+
+        $scope.stepActions = [
+          { title: 'Change Url', value: 'redirect' },
+          { title: 'Single Click', value: 'click' },
+          { title: 'Double Click', value: 'dblclick' },
+          { title: 'Focus', value: 'focus' },
+          { title: 'Blur', value: 'blur' },
+          { title: 'Set to', value: 'val' },
+          { title: 'Found', value: 'found' }
+        ];
+
+        $( "#sortable" ).sortable({
+          revert: true,
+          axis: "y",
+          handle: "span",
+          helper: "clone",
+          placeholder: "ui-state-highlight"
+        });
+        $( "td" ).disableSelection();
+
+        /* When we change the tab, we need to save the current hash. */
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+          setTab(e.target.hash);
+        });
+
+        chrome.storage.sync.get('currentTab', function(data) {
+          if (!_.has(data,'currentTab')) {
+            // Save the default.
+            chrome.storage.sync.set({'currentTab': 'home'}, function() {
+              console.log('Setting default test tab.');
+              $('#tabs a[href="' + currentTab + '"]').tab('show');
+            });
+          } else {
+            $('#tabs a[href="' + data.currentTab + '"]').tab('show');
+          }
+        });
 
         $scope.services = [];
-        var options = JSON.parse(localStorage.getItem('tests'));
-        if (options) {
-          $scope.services = options;
-        }
 
-        $scope.activeTest = _.findWhere($scope.services, { name: currentTest});
+        /* Call the service to get the tests. */
+        Tests.get(function(data) {
+          $scope.services = data;
+          $scope.activeTest = _.findWhere($scope.services, { name: currentTest });
+          $scope.$apply();
+        });
 
         $scope.reloadSampleTests = function() {
-          localStorage.setItem('tests', JSON.stringify(schemas));
+          setTests(schemas);
           $scope.services = schemas;
-
           $scope.activeTest = schemas[_.first(_.keys(schemas))];
-          currentTest = $scope.activeTest.name;
-          localStorage.setItem('currentTest', currentTest);
+         
+          setCurrentTest($scope.activeTest.name);
         }
 
         $scope.changeCurrentTest = function() {
-          localStorage.setItem('currentTest', $scope.activeTest.name);
+          setCurrentTest($scope.activeTest.name);
         }
 
-        $scope.runIndividualTest = function(testIdx) {
-          ExecuteTestInBrowser(testIdx, $scope.activeTest);
+        /* This will run an individual test for a the current active test. */
+        $scope.runIndividualTestStep = function(testIdx) {
+          ExecuteTestInBrowser(testIdx, $scope.activeTest, function() {
+            setTimeout(function() {
+              $('.testStep').addClass('hide');
+            }, 1500);
+          });
         }
 
-        $scope.runAllTest = function() {
-          console.log('activeTest', $scope.activeTest);
-          ExecuteTestInBrowser(-1, $scope.activeTest);
+        /* This will run all the steps for the current active test. */
+        $scope.runAllTestSteps = function() {
+          ExecuteTestInBrowser(-1, $scope.activeTest, function() {
+            setTimeout(function() {
+              $('.testStep').addClass('hide');
+            }, 1500);
+          });
         }
 
-        $scope.removeTestButton = function() {
+        /* Runs all the existing tests in series. */
+        $scope.runAllTestInSeries = function() {
+
+          var q = async.queue(function (test, callback) {
+              ExecuteTestInBrowser(-1, test, function() {
+                callback();
+              });
+          }, 1);
+
+          q.drain = function() {
+            setTimeout(function() {
+              $('.bulkTest').addClass('hide');
+            }, 1500);
+          }
+
+          q.push($scope.services, function(err) {});
+        }
+
+        /* This will run all the steps in a specific test suite. */
+        $scope.runIndividualTestSuite = function(testName) {
+          var test = _.findWhere($scope.services, { name: testName });
+
+          ExecuteTestInBrowser(-1, test, function() {
+            setTimeout(function() {
+              $('.bulkTest').addClass('hide');
+            }, 1500);
+          });
+        }
+
+        $scope.removeTestButton = function(testName) {
           $scope.services = _.reject($scope.services, function(service) {
-            return service.name == $scope.activeTest.name;
+            return service.name == testName;
           });
 
           $scope.activeTest = $scope.services[_.first(_.keys($scope.services))];
-          localStorage.setItem('tests', JSON.stringify($scope.services));
+          setTests($scope.services);
         }
 
         $scope.addTestButton = function() {
@@ -106,30 +208,80 @@ $(function() {
         }
 
         $scope.editTestStep = function(idx) {
-          console.log('ssssss', idx);
-          $scope.editModeIdx = idx;
+          if ($scope.editModeIdx == idx) {
+            $scope.editModeIdx = -1;
+          } else {
+            $scope.editModeIdx = idx;
+          }
+        }
+
+        $scope.saveTestStepChanges = function() {
+          $scope.editModeIdx = -1;
+        }
+
+        $scope.changeTestStepChanges = function(idx) {
+          $scope.editModeIdx = -1;
         }
 
         $scope.newTest = { name: '', steps: [] };
 
+        $scope.$watch('activeTest', function() {
+            $scope.saveServices();
+        }, true);
+
         $scope.createTest = function() {
-          $scope.services.push($scope.newTest);
-          localStorage.setItem('tests', JSON.stringify($scope.services));
+          $scope.activeTest = newTest = _.clone($scope.newTest);
+          $scope.services.push(newTest);
 
-          $scope.activeTest = $scope.newTest;
-          currentTest = $scope.activeTest.name;
-          localStorage.setItem('currentTest', currentTest);
+          setTests($scope.services);
 
-          $('#newTestForm').addClass('hide');
+          $scope.saveServices();
+
+          setCurrentTest($scope.activeTest.name);
+
+          $scope.newTest.name = '';
+          $('#tabs a:first').tab('show')
         }
 
-        $scope.newTestStep = JSON.stringify({ name: 'New Step', target: '', action: '', value: '' });
         $scope.createTestStep = function() {
-          $scope.activeTest.steps.push(JSON.parse($scope.newTestStep))
+          $scope.activeTest.steps.push({ name: '', target: '', action: '', value: '' });
+          $scope.editModeIdx = $scope.activeTest.steps.length - 1;
+          $scope.saveServices();
         }
 
-        $scope.deleteTestStep = function(idx) {
+        $scope.setActiveTest = function(testName) {
+          $scope.activeTest = _.findWhere($scope.services, { name: testName });
+          $scope.saveActiveTest();
+
+          $('#tabs a:first').tab('show');
+        }
+
+        /* This will take the index of the current test and remove the step. */
+        $scope.deleteStep = function(idx) {
           $scope.activeTest.steps.splice(idx, 1);
+          $scope.saveServices();
+        }
+
+        /* This will delete the entire test Suite. */
+        $scope.deleteTestSuite = function(testName) {
+          var idx = _.findIndex($scope.services, function(service) { return service.name == testName; });
+          $scope.services.splice(idx, 1);
+          $scope.saveServices();
+        }
+
+        $scope.copyTestButton = function(testName) {
+          var newTest = _.clone(_.findWhere($scope.services, { name: testName }));
+          newTest.name = newTest.name + ' Copy';
+          $scope.services.push(newTest);
+          $scope.saveServices();
+        }
+
+        $scope.saveServices = function() {
+          setTests($scope.services);
+        }
+
+        $scope.saveActiveTest = function() {
+          setCurrentTest($scope.activeTest.name);
         }
 
         // create a message to display in our view
@@ -149,40 +301,97 @@ $(function() {
       };
     });
 
-    function ExecuteTestInBrowser(idx, testObj) {
+    scotchApp.factory('Tests', [function() {
+      var tests = [];
+      return {
+        get: function(callback) {
+          chrome.storage.sync.get('tests', function(data) {
+            if (!_.has(data, 'tests')) {
+              tests = [];
+            } else {
+              tests = JSON.parse(data.tests);
+           }
+           callback(tests);
+         });
+        }
+      }
+    }]);
+
+    function ExecuteTestInBrowser(idx, testObj, cb) {
       chrome.tabs.getSelected(null, function(tab) {
         var steps = testObj.steps[idx];
-        var runSpeed = $('#runSpeed').val() || 500;
+        var runSpeed = 500;
+        var errorCount = 0;
 
         if (idx == -1) {
-          var totalRun = 0;
+          idx = 0;
           $('#finalMessage').addClass('hide').html('');
           $('.glyphicon-ok').addClass('hide');
+          $('[data-test-name="' + testObj.name + '"] .glyphicon-refresh-animate').removeClass('hide');
+          $('tr[data-test-name="' + testObj.name + '"]').removeClass('success');
 
-          var q = async.queue(function (test, callback) {
+          var q = async.queue(function (step, callback) {
               setTimeout(function() { 
-                if (test.action && test.action == 'redirect') {
-                  chrome.tabs.executeScript(null, { code: "document.location='" + test.value + "'"}, callback);
-                } else {
-                  chrome.tabs.sendRequest(tab.id, { 'action': 'ExecuteTest', 'test': test }, 
-                    function() {
-                      $('[data-id="' + totalRun + '"]').removeClass('hide')
-                      totalRun++;
-                      callback();
-                    });
-                }
+                chrome.tabs.sendRequest(tab.id, { 'action': 'ExecuteTest', 'test': step }, 
+                  function(data) {
+                    console.log(step.name, 'Result from Series Step', data);
+
+                    if (data) {
+                      if (data.status) {
+                        $('[data-id="' + idx + '"].testStep').removeClass('hide').addClass('iconRed');
+                        $('[data-test-step-index="' + idx + '"].testStep').removeClass('hide').addClass('iconGreen');
+                      } else {
+                        console.log('sss', $('[data-id="' + idx + '"].testStep'));
+                        $('[data-id="' + idx + '"].testStep').removeClass('hide').addClass('iconRed');
+                        $('[data-test-step-index="' + idx + '"].testStep').removeClass('hide').addClass('iconRed');
+                        errorCount++;
+                      }
+                    } else {
+                      // Make this gray because we do not know. 
+                      $('[data-id="' + idx + '"].testStep').removeClass('hide').addClass('iconGray');
+                      $('[data-test-step-index="' + idx + '"].testStep').removeClass('hide').addClass('iconGreen');
+                    }
+
+                    idx++;
+                    callback();
+                  });
               }, runSpeed);
           }, 1);
 
           q.drain = function() {
-            $('#finalMessage').removeClass('hide').html('All Done. No Errors. Ran ' + totalRun + ' assertions.')
+            $('.finalMessage').removeClass('hide').html('All Done. No Errors. Ran ' + idx + ' assertions.')
+
+            /* Set the test status icon. */
+            if (errorCount == 0) {
+              $('span[data-test-name="' + testObj.name + '"]').removeClass('hide').addClass('iconGreen');
+            } else {
+              $('span[data-test-name="' + testObj.name + '"]').removeClass('hide').addClass('iconRed');
+            }
+
+            /* Hide the Test Spinner icon. */
+            $('[data-test-name="' + testObj.name + '"] .glyphicon-refresh-animate').addClass('hide');
+            if (cb) cb();
           }
 
           q.push(testObj.steps, function(err) {});
         } else {
           chrome.tabs.sendRequest(tab.id, { 'action': 'ExecuteTest', 'test': testObj.steps[idx] }, 
             function(data) {
-              console.log('Assertion Result', data);
+              console.log('Result', data);
+
+              if (data) {
+                if (data.status) {
+                  $('.finalMessage').removeClass('hide').removeClass('alert-danger').addClass('alert-success').html('Passed. ' + data.message);
+                  $('[data-test-step-index="' + idx + '"].testStep').removeClass('hide').addClass('iconGreen');
+                } else {
+                  $('.finalMessage').removeClass('hide').addClass('alert-danger').removeClass('alert-success').html('Failed. ' + data.message);
+                  $('[data-test-step-index="' + idx + '"].testStep').removeClass('hide').addClass('iconRed');
+                }
+              } else {
+                $('[data-test-step-index="' + idx + '"].testStep').removeClass('hide').addClass('iconGray');
+              }
+              
+              if (cb) cb();
             });
         }
       });
